@@ -3,4 +3,4 @@
  * data. This data can be used to gather statistical information
  * about the machine being tested.
  */
-package org.example.edu.touro.mco152.bm.persist;
+package edu.touro.mco152.bm.persist;

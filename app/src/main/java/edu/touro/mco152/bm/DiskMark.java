@@ -1,4 +1,4 @@
-package org.example.edu.touro.mco152.bm;
+package edu.touro.mco152.bm;
 
 import java.text.DecimalFormat;
 

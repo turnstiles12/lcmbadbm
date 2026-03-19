@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.example.edu.touro.mco152.bm.persist;
+package edu.touro.mco152.bm.persist;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

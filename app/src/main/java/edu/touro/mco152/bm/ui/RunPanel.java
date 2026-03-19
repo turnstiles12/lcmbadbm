@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.example.edu.touro.mco152.bm.ui;
+package edu.touro.mco152.bm.ui;
 
-import org.example.edu.touro.mco152.bm.persist.DiskRun;
+import edu.touro.mco152.bm.persist.DiskRun;
 
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ComponentAdapter;
