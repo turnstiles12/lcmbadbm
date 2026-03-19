@@ -26,3 +26,13 @@ gradle/wrapper
 
 #ignore changes to the apps properties file
 jdm.properties
+
+#vscode project files
+test-lib
+.vscode
+.gitignore
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
