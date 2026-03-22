@@ -3,7 +3,7 @@ package edu.touro.mco152.bm;
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
-
+import edu.touro.mco152.bm.ui.MainFrame;
 import jakarta.persistence.EntityManager;
 import javax.swing.*;
 import java.io.File;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +38,7 @@ import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
  * Swing using an instance of the DiskMark class.
  */
 
-public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
+public class DiskWorker extends SwingWorker<Boolean, DiskMark> implements Worker{
 
     // Record any success or failure status returned from SwingWorker (might be us or super)
     Boolean lastStatus = null;  // so far unknown
