@@ -5,4 +5,7 @@ public interface Worker {
     boolean cancel(boolean mayInterruptIfRunning);
     boolean isDone();
     boolean isCancelled();
+    void setProgress(int progress);
+    void publish(DiskMark disk);
+    public Boolean get();
 }
