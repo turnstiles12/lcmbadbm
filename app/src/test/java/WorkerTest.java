@@ -42,6 +42,7 @@ public class WorkerTest {
     /** R of CORRECT: Reference - one method that references another
      * is changed when one method is changed
      * E of CORRECT: Existence - what if there is no info or null
+     * I of BICEP: Inverse relationship - 
      */
     @Test
     public void testDiskRun() {
