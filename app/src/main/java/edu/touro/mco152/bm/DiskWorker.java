@@ -1,5 +1,6 @@
 package edu.touro.mco152.bm;
 
+import edu.touro.mco152.bm.commands.Receivers.DiskReader;
 import edu.touro.mco152.bm.commands.Receivers.DiskReceiver;
 import edu.touro.mco152.bm.commands.Receivers.DiskWriter;
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
@@ -121,78 +122,9 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
         // Same as above, just for Read operations instead of Writes.
         if (App.readTest) {
-            DiskRun run = new DiskRun(DiskRun.IOMode.READ, App.blockSequence);
-            run.setNumMarks(App.numOfMarks);
-            run.setNumBlocks(App.numOfBlocks);
-            run.setBlockSize(App.blockSizeKb);
-            run.setTxSize(App.targetTxSizeKb());
-            run.setDiskInfo(Util.getDiskInfo(dataDir));
-
-            msg("disk info: (" + run.getDiskInfo() + ")");
-
-            benchmarkUI.setTitle(run.getDiskInfo());
-
-            for (int m = startFileNum; m < startFileNum + App.numOfMarks && !isCancelled(); m++) {
-
-                if (App.multiFile) {
-                    testFile = new File(dataDir.getAbsolutePath()
-                            + File.separator + "testdata" + m + ".jdm");
-                }
-                rMark = new DiskMark(READ);  // starting to keep track of a new benchmark
-                rMark.setMarkNum(m);
-                long startTime = System.nanoTime();
-                long totalBytesReadInMark = 0;
-
-                try {
-                    try (RandomAccessFile rAccFile = new RandomAccessFile(testFile, "r")) {
-                        for (int b = 0; b < numOfBlocks; b++) {
-                            if (App.blockSequence == DiskRun.BlockSequence.RANDOM) {
-                                int rLoc = Util.randInt(0, numOfBlocks - 1);
-                                rAccFile.seek((long) rLoc * blockSize);
-                            } else {
-                                rAccFile.seek((long) b * blockSize);
-                            }
-                            rAccFile.readFully(blockArr, 0, blockSize);
-                            totalBytesReadInMark += blockSize;
-                            rUnitsComplete++;
-                            unitsComplete = rUnitsComplete + wUnitsComplete;
-                            percentComplete = (float) unitsComplete / (float) unitsTotal * 100f;
-                            benchmarkUI.updateProgress((int) percentComplete);
-                        }
-                    }
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                    String emsg = "May not have done Write Benchmarks, so no data available to read." +
-                            ex.getMessage();
-                    notifier.showErrorMessage(emsg);
-                    msg(emsg);
-                    return false;
-                }
-                long endTime = System.nanoTime();
-                long elapsedTimeNs = endTime - startTime;
-                double sec = (double) elapsedTimeNs / (double) 1000000000;
-                double mbRead = (double) totalBytesReadInMark / (double) MEGABYTE;
-                rMark.setBwMbSec(mbRead / sec);
-                msg("m:" + m + " READ IO is " + rMark.getBwMbSec() + " MB/s    "
-                        + "(MBread " + mbRead + " in " + sec + " sec)");
-                App.updateMetrics(rMark);
-                publish(rMark);
-
-                run.setRunMax(rMark.getCumMax());
-                run.setRunMin(rMark.getCumMin());
-                run.setRunAvg(rMark.getCumAvg());
-                run.setEndTime(new Date());
-            }
-
-            /*
-              Persist info about the Read BM Run (e.g. into Derby Database) and add it to a GUI panel
-             */
-            EntityManager em = EM.getEntityManager();
-            em.getTransaction().begin();
-            em.persist(run);
-            em.getTransaction().commit();
-
-            benchmarkUI.addRun(run);
+            DiskReceiver reader = new DiskReader(numOfMarks, numOfBlocks, blockSizeKb, "serial",
+            benchmarkUI, notifier);
+            reader.run();
         }
         App.nextMarkNumber += App.numOfMarks;
         return true;
