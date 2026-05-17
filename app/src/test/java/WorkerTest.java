@@ -3,6 +3,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.Assertions;
 import edu.touro.mco152.bm.*;
+import edu.touro.mco152.bm.commands.Receivers.DiskReader;
+import edu.touro.mco152.bm.commands.Receivers.DiskReceiver;
+import edu.touro.mco152.bm.commands.Receivers.DiskWriter;
 import edu.touro.mco152.bm.persist.DiskRun;
 
 public class WorkerTest {
@@ -55,5 +58,19 @@ public class WorkerTest {
          * Broken test - diskInfo is null
          */
         Assertions.assertNotNull(dr.getDiskInfo());
+    }
+    @Test
+    public void testReader() {
+        DiskReceiver reader = new DiskReader(1,1,1,"Serial",
+        new SwingBenchMarkUI(),new SwingUserNotifier());
+        reader.run();
+        Assertions.assertEquals(reader, reader);
+    }
+    @Test
+    public void testWriter() {
+        DiskReceiver writer = new DiskWriter(1,1,1,"Serial",
+        new SwingBenchMarkUI());
+        writer.run();
+        Assertions.assertEquals(writer, writer);
     }
 }
