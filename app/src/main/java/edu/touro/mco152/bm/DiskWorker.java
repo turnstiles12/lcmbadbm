@@ -1,27 +1,18 @@
 package edu.touro.mco152.bm;
 
-import edu.touro.mco152.bm.commands.Receivers.DiskReader;
+import edu.touro.mco152.bm.commands.DiskCommand;
+import edu.touro.mco152.bm.commands.DiskReadCommand;
+import edu.touro.mco152.bm.commands.DiskWriteCommand;
+import edu.touro.mco152.bm.commands.Receivers.DiskHandler;
 import edu.touro.mco152.bm.commands.Receivers.DiskReceiver;
-import edu.touro.mco152.bm.commands.Receivers.DiskWriter;
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
 import edu.touro.mco152.bm.interfaces.IUserNotifier;
-import edu.touro.mco152.bm.persist.DiskRun;
-import edu.touro.mco152.bm.persist.EM;
-
-import jakarta.persistence.EntityManager;
 import javax.swing.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static edu.touro.mco152.bm.App.*;
-import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
-import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
 /**
  * Execute disk benchmarking as a Swing-compliant thread (only one of these threads can run at
@@ -103,10 +94,11 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
         /*
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
+        DiskReceiver receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "serial",
+            benchmarkUI, notifier);
         if (App.writeTest) {
-            DiskReceiver writer = new DiskWriter(numOfMarks, numOfBlocks, blockSizeKb, "serial",
-            benchmarkUI);
-            writer.run();
+            DiskCommand writer = new DiskWriteCommand(receiver);
+            writer.execute();
         }
 
         /*
@@ -122,9 +114,8 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
         // Same as above, just for Read operations instead of Writes.
         if (App.readTest) {
-            DiskReceiver reader = new DiskReader(numOfMarks, numOfBlocks, blockSizeKb, "serial",
-            benchmarkUI, notifier);
-            reader.run();
+            DiskCommand reader = new DiskReadCommand(receiver);
+            reader.execute();
         }
         App.nextMarkNumber += App.numOfMarks;
         return true;
