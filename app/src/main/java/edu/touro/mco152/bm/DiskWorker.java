@@ -66,11 +66,6 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
         /*
           init local vars that keep track of benchmarks, and a large read/write buffer
          */
-        int wUnitsComplete = 0, rUnitsComplete = 0, unitsComplete;
-        int wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
-        int rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
-        int unitsTotal = wUnitsTotal + rUnitsTotal;
-        float percentComplete;
 
         int blockSize = blockSizeKb * KILOBYTE;
         byte[] blockArr = new byte[blockSize];
@@ -79,22 +74,16 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
                 blockArr[b] = (byte) 0xFF;
             }
         }
-
-        DiskMark wMark, rMark;  // declare vars that will point to objects used to pass progress to UI
-
         benchmarkUI.updateLegend();
 
         if (App.autoReset) {
             App.resetTestData();
             benchmarkUI.resetTestData();
         }
-
-        int startFileNum = App.nextMarkNumber;
-
         /*
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
-        DiskExecutor receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "serial",
+        DiskExecutor receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "SEQUENTIAL",
             benchmarkUI, notifier);
         if (App.writeTest) {
             DiskCommand writer = new DiskWriteCommand(receiver);
