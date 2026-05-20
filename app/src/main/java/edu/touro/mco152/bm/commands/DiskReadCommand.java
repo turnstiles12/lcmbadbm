@@ -1,14 +1,14 @@
 package edu.touro.mco152.bm.commands;
 
-import edu.touro.mco152.bm.commands.Receivers.DiskReceiver;
+import edu.touro.mco152.bm.commands.Receivers.DiskExecutor;
 
 /**
  * Executes read DiskReceiver commands
  */
 public class DiskReadCommand implements DiskCommand {
-     private DiskReceiver command;
+     private DiskExecutor command;
 
-    public DiskReadCommand(DiskReceiver command) {
+    public DiskReadCommand(DiskExecutor command) {
         this.command = command;
     }
 

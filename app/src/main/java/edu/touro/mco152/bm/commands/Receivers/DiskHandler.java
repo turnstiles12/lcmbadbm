@@ -24,7 +24,7 @@ import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import jakarta.persistence.EntityManager;
 
-public class DiskHandler implements DiskReceiver{
+public class DiskHandler implements DiskExecutor{
     public static final int MEGABYTE = 1024 * 1024;
     private int numOfMarks;
     private int numOfBlocks;

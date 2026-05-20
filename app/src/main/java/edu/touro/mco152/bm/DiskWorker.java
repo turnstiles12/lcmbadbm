@@ -4,7 +4,7 @@ import edu.touro.mco152.bm.commands.DiskCommand;
 import edu.touro.mco152.bm.commands.DiskReadCommand;
 import edu.touro.mco152.bm.commands.DiskWriteCommand;
 import edu.touro.mco152.bm.commands.Receivers.DiskHandler;
-import edu.touro.mco152.bm.commands.Receivers.DiskReceiver;
+import edu.touro.mco152.bm.commands.Receivers.DiskExecutor;
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
 import edu.touro.mco152.bm.interfaces.IUserNotifier;
 import javax.swing.*;
@@ -94,7 +94,7 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
         /*
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
-        DiskReceiver receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "serial",
+        DiskExecutor receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "serial",
             benchmarkUI, notifier);
         if (App.writeTest) {
             DiskCommand writer = new DiskWriteCommand(receiver);

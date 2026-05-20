@@ -3,11 +3,9 @@ package edu.touro.mco152.bm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker.StateValue;
 
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
 import edu.touro.mco152.bm.persist.DiskRun;
