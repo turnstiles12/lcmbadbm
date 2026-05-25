@@ -12,4 +12,6 @@ public interface IBenchmarkUI {
     void onBenchMarkComplete();
     void resetTestData();
     void addRun(DiskRun dr);
+    void publish(DiskMark... chunks);
+    boolean isCancelled();
 }
