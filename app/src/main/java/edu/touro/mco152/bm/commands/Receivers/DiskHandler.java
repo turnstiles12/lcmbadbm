@@ -43,9 +43,6 @@ public class DiskHandler implements DiskExecutor{
             this.notifier = notifier;
         }
     
-    public void run(){
-        this.read();
-    }
     public void write() {
                 // declare local vars formerly in DiskWorker
 
