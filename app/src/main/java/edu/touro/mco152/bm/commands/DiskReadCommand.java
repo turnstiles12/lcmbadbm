@@ -1,6 +1,6 @@
 package edu.touro.mco152.bm.commands;
 
-import edu.touro.mco152.bm.commands.Receivers.DiskExecutor;
+import edu.touro.mco152.bm.commands.Executors.DiskExecutor;
 
 /**
  * Executes read DiskReceiver commands

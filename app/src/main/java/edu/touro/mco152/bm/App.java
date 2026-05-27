@@ -392,7 +392,7 @@ public class App {
 
     public enum State {IDLE_STATE, DISK_TEST_STATE}
     
-    private static void setupDefaultAsPerProperties() {
+    public static void setupDefaultAsPerProperties() {
         
         /// Do the minimum of what  App.init() would do to allow to run.
         Gui.mainFrame = new MainFrame();

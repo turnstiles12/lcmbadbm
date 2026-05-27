@@ -52,30 +52,11 @@ public class SwingBenchMarkUI implements IBenchmarkUI{
         Gui.runPanel.addRun(dr);
     }
     public final boolean isCancelled() {
-        FutureTask<Boolean> future = new FutureTask<>(null);
-        return future.isCancelled();
+        return App.worker.isCancelled();
     }
-    private final List<DiskMark> pendingChunks = new ArrayList<>();
-    private final Object lock = new Object();
-    private volatile boolean submitScheduled = false;
 
     public void publish(DiskMark... chunks) {
-    synchronized (lock) {
-        Collections.addAll(pendingChunks, chunks);
-        if (!submitScheduled) {
-            submitScheduled = true;
-            SwingUtilities.invokeLater(this::flush);
-        }
-    }
-}
-
-    private void flush() {
-        List<DiskMark> batch;
-        synchronized (lock) {
-            batch = new ArrayList<>(pendingChunks);
-            pendingChunks.clear();
-            submitScheduled = false;
-        }
+        App.worker.publishMarks(chunks);
     }
 
 }

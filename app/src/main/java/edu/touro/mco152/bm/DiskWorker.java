@@ -3,10 +3,12 @@ package edu.touro.mco152.bm;
 import edu.touro.mco152.bm.commands.DiskCommand;
 import edu.touro.mco152.bm.commands.DiskReadCommand;
 import edu.touro.mco152.bm.commands.DiskWriteCommand;
-import edu.touro.mco152.bm.commands.Receivers.DiskHandler;
-import edu.touro.mco152.bm.commands.Receivers.DiskExecutor;
+import edu.touro.mco152.bm.commands.Executors.DiskExecutor;
+import edu.touro.mco152.bm.commands.Executors.DiskHandler;
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
 import edu.touro.mco152.bm.interfaces.IUserNotifier;
+import edu.touro.mco152.bm.persist.DatabasePersistenceObserver;
+
 import javax.swing.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -84,7 +86,10 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
         DiskExecutor receiver = new DiskHandler(numOfMarks, numOfBlocks, blockSizeKb, "SEQUENTIAL",
-            benchmarkUI, notifier);
+            benchmarkUI, notifier, App.dataDir);
+        receiver.register(new DatabasePersistenceObserver());
+        receiver.register(new BenchmarkRulesObserver());
+        receiver.register(new GuiRunPanelObserver(benchmarkUI));
         if (App.writeTest) {
             DiskCommand writer = new DiskWriteCommand(receiver);
             writer.execute();
@@ -141,11 +146,12 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
         try {
             lastStatus = super.get();   // record for future access
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.getLogger(App.class.getName()).warning("Problem obtaining final status: " + e.getMessage());
         }
 
         if (App.autoRemoveData) {
-            Util.deleteDirectory(dataDir);
+            Util.deleteDirectory(App.dataDir);
         }
         App.state = App.State.IDLE_STATE;
         benchmarkUI.onBenchMarkComplete();;
@@ -153,5 +159,8 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
     public Boolean getLastStatus() {
         return lastStatus;
+    }
+    public void publishMarks(DiskMark... chunks) {
+        publish(chunks);
     }
 }
