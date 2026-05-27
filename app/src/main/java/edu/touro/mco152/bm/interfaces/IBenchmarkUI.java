@@ -3,6 +3,9 @@ package edu.touro.mco152.bm.interfaces;
 import edu.touro.mco152.bm.DiskMark;
 import edu.touro.mco152.bm.persist.DiskRun;
 
+/**
+ * Interface used to track benchmark data on GUI
+ */
 public interface IBenchmarkUI {
     void updateProgress(int percent);
     void addWriteMark(DiskMark dm);

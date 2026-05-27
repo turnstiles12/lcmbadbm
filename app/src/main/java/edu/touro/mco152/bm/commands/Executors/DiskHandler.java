@@ -1,17 +1,15 @@
-package edu.touro.mco152.bm.commands.Receivers;
+package edu.touro.mco152.bm.commands.Executors;
 
 import static edu.touro.mco152.bm.App.KILOBYTE;
-import static edu.touro.mco152.bm.App.MEGABYTE;
 import static edu.touro.mco152.bm.App.msg;
-import static edu.touro.mco152.bm.App.numOfBlocks;
-import static edu.touro.mco152.bm.App.testFile;
 import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,10 +18,14 @@ import edu.touro.mco152.bm.DiskMark;
 import edu.touro.mco152.bm.Util;
 import edu.touro.mco152.bm.interfaces.IBenchmarkUI;
 import edu.touro.mco152.bm.interfaces.IUserNotifier;
+import edu.touro.mco152.bm.observer.Observer;
 import edu.touro.mco152.bm.persist.DiskRun;
-import edu.touro.mco152.bm.persist.EM;
-import jakarta.persistence.EntityManager;
 
+/**
+ * Subject (inherited from DiskExecutor) that completes read/write benchmarks
+ * <br>
+ * Notifies Observers when benchmarks are complete 
+ */
 public class DiskHandler implements DiskExecutor{
     public static final int MEGABYTE = 1024 * 1024;
     private int numOfMarks;
@@ -34,18 +36,20 @@ public class DiskHandler implements DiskExecutor{
     private DiskMark rMark;
     private IBenchmarkUI benchmarkUI;
     private IUserNotifier notifier;
+    private List<Observer> observers = new ArrayList<>();
+    private DiskRun currentRun;
     public DiskHandler(int marks, int numOfBlocks, int sizeOfBlocks, String seq,
-        IBenchmarkUI benchmarkUI, IUserNotifier notifier) {
+        IBenchmarkUI benchmarkUI, IUserNotifier notifier, File dataDir) {
             numOfMarks = marks;
             this.numOfBlocks = numOfBlocks;
             blockSizeKb = sizeOfBlocks;
             this.benchmarkUI = benchmarkUI;
             this.notifier = notifier;
+            this.dataDir = dataDir;
         }
-    
-    public void run(){
-        this.read();
-    }
+    /**
+     * Write benchmark - checks benchmarking stats for write command
+     */
     public void write() {
                 // declare local vars formerly in DiskWorker
 
@@ -94,7 +98,7 @@ public class DiskHandler implements DiskExecutor{
             for (int m = startFileNum; m < startFileNum + App.numOfMarks && !benchmarkUI.isCancelled(); m++) {
 
                 if (App.multiFile) {
-                    App.testFile = new File(App.dataDir.getAbsolutePath()
+                    testFile = new File(dataDir.getAbsolutePath()
                             + File.separator + "testdata" + m + ".jdm");
                 }
                 wMark = new DiskMark(DiskMark.MarkType.WRITE);    // starting to keep track of a new benchmark
@@ -160,15 +164,14 @@ public class DiskHandler implements DiskExecutor{
             /*
               Persist info about the Write BM Run (e.g. into Derby Database) and add it to a GUI panel
              */
-            EntityManager em = EM.getEntityManager();
-            em.getTransaction().begin();
-            em.persist(run);
-            em.getTransaction().commit();
-
-            benchmarkUI.addRun(run);
+            currentRun = run;
+            notifyObservers();
         }
     }
 
+    /**
+     * Read benchmark 
+     */
     public void read() {
 
         int wUnitsComplete = 0,
@@ -189,6 +192,7 @@ public class DiskHandler implements DiskExecutor{
         }
         int startFileNum = App.nextMarkNumber;
         DiskRun run = new DiskRun(DiskRun.IOMode.READ, App.blockSequence);
+        currentRun = run;
         run.setNumMarks(App.numOfMarks);
         run.setNumBlocks(App.numOfBlocks);
         run.setBlockSize(App.blockSizeKb);
@@ -254,11 +258,33 @@ public class DiskHandler implements DiskExecutor{
         /*
             Persist info about the Read BM Run (e.g. into Derby Database) and add it to a GUI panel
             */
-        EntityManager em = EM.getEntityManager();
-        em.getTransaction().begin();
-        em.persist(run);
-        em.getTransaction().commit();
+        currentRun = run;
+        notifyObservers();
+        
+    }
+    /**
+     * Adds Observer to list of Observers to be notified when benchmark is complete
+     * @param o Observer to add to list
+     */
+    @Override
+    public void register(Observer o) {
+        observers.add(o);
+    }
+    /**
+     * Removes Observers to list of Observers to be notified when benchmark is complete
+     * @param o Observer to remove from list
+     */
+    @Override
+    public void unregister(Observer o) {
+      observers.remove(o);
+    }
 
-        benchmarkUI.addRun(run);
+    /**
+     * Notifies all Observers stored in list that benchmark is complete
+     */
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers)
+            o.update(currentRun);
     }
 }
